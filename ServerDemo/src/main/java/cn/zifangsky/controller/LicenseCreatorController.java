@@ -6,13 +6,14 @@ import cn.zifangsky.license.AbstractServerInfos;
 import cn.zifangsky.license.LicenseCheckModel;
 import cn.zifangsky.license.LicenseCreatorParam;
 import cn.zifangsky.license.WindowsServerInfos;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/license")
+@Api(tags = "生成证书文件")
 public class LicenseCreatorController {
 
     /**
@@ -42,8 +44,12 @@ public class LicenseCreatorController {
      * @param osName 操作系统类型，如果为空则自动判断
      * @return com.ccx.models.license.LicenseCheckModel
      */
-    @RequestMapping(value = "/getServerInfos",produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public LicenseCheckModel getServerInfos(@RequestParam(value = "osName",required = false) String osName) {
+    @PostMapping(value = "/getServerInfos",produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    @ApiOperation(value = "获取服务器硬件信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "osName",value = "操作系统类型（不填默认按Windows系统处理）")
+    })
+    public LicenseCheckModel getServerInfos(String osName) {
         //操作系统类型
         if(StringUtils.isBlank(osName)){
             osName = System.getProperty("os.name");
@@ -72,7 +78,8 @@ public class LicenseCreatorController {
      * @param param 生成证书需要的参数，如：{"subject":"ccx-models","privateAlias":"privateKey","keyPass":"5T7Zz5Y0dJFcqTxvzkH5LDGJJSGMzQ","storePass":"3538cef8e7","licensePath":"C:/Users/zifangsky/Desktop/license.lic","privateKeysStorePath":"C:/Users/zifangsky/Desktop/privateKeys.keystore","issuedTime":"2018-04-26 14:48:12","expiryTime":"2018-12-31 00:00:00","consumerType":"User","consumerAmount":1,"description":"这是证书描述信息","licenseCheckModel":{"ipAddress":["192.168.245.1","10.0.5.22"],"macAddress":["00-50-56-C0-00-01","50-7B-9D-F9-18-41"],"cpuSerial":"BFEBFBFF000406E3","mainBoardSerial":"L1HF65E00X9"}}
      * @return java.util.Map<java.lang.String,java.lang.Object>
      */
-    @RequestMapping(value = "/generateLicense",produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    @PostMapping(value = "/generateLicense",produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    @ApiOperation(value = "生成证书")
     public Map<String,Object> generateLicense(@RequestBody(required = true) LicenseCreatorParam param) {
         Map<String,Object> resultMap = new HashMap<>(2);
 
